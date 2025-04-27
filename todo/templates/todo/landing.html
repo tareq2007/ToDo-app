@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+
+
+<div class="bg-white shadow-md rounded-lg p-6 mb-6">
+  
+<h1 class="text-center text-violet-400  font-lobster text-3xl" > Welcome to My Todo App!</h1>
+
+<div class="text-right">
+
+  <h1 class="text-2xl font-bold text-gray-800 mb-2 animate-pulse">Hello {{ request.user|title }}</h1>
+  <p class="text-gray-600 text-2xl">
+    You have <span class="font-semibold text-violet-600">{{ count }}</span> incomplete task{{ count|pluralize:"s" }}.
+  </p>
+  <p class="text-gray-600 text-2xl">
+    You have <span class="font-semibold text-green-600">{{ completed_count }}</span> completed task{{ completed_count|pluralize:"s" }}.
+  </p>
+  
+</div>
+
+
+
+
+
+<div class="max-w-4xl mx-auto my-10 bg-white shadow-lg rounded-lg p-6">
+
+  <!-- Search Bar and Add Task -->
+  <div class="flex justify-between items-center mb-6">
+    <form method="GET" class="relative w-2/3">
+      <input type="text" name="search-area" value="{{ search_input }}" placeholder="Search..."
+        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-400" />
+      <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
+        </svg>
+      </div>
+    </form>
+
+    <a href="{% url 'create-task' %}" class="flex items-center gap-2 bg-violet-500 hover:bg-violet-600 text-white font-semibold py-2 px-4 rounded-lg transition">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+      </svg>
+      Add Task
+    </a>
+  </div>
+
+  <!-- Uncompleted Tasks -->
+  <div class="mb-10">
+    <h2 class="text-2xl font-bold text-violet-600 mb-4">Uncompleted Tasks</h2>
+
+    {% for task in tasks %}
+      {% if not task.complete %}
+        <div class="flex items-center justify-between text-gray-700 py-4 border-b hover:bg-violet-100 transition duration-300 ease-in-out cursor-move"
+          draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)" id="task-{{task.id}}">
+
+          <!-- Task Title -->
+          <div class="flex items-center space-x-3 w-1/2 text-2xl">
+            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M6 4v10m0 0a2 2 0 1 0 0 4m0-4a2 2 0 1 1 0 4m0 0v2m6-16v2m0 0a2 2 0 1 0 0 4m0-4a2 2 0 1 1 0 4m0 0v10m6-16v10m0 0a2 2 0 1 0 0 4m0-4a2 2 0 1 1 0 4m0 0v2"/>
+            </svg>
+            
+            <span>{{ task.title }}</span>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center gap-5">
+            <a href="{% url 'task-update' task.id %}" class="text-blue-600 hover:text-blue-800">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M11 4h2a2 2 0 012 2v2m0 12h-2a2 2 0 01-2-2v-2m6-6h2a2 2 0 012 2v2m-2 2v2a2 2 0 01-2 2h-2m-6-6H4a2 2 0 00-2 2v2m2-6V6a2 2 0 012-2h2" />
+              </svg>
+            </a>
+            <a href="{% url 'task-delete' task.id %}" class="text-red-600 hover:text-red-800">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </a>
+          </div>
+
+        </div>
+      {% endif %}
+    {% empty %}
+      <div class="text-center text-gray-500 py-8">No uncompleted tasks.</div>
+    {% endfor %}
+  </div>
+
+  <!-- Completed Tasks -->
+  <div class="mt-10">
+    <h2 class="text-2xl font-bold text-green-600 mb-4">Completed Tasks</h2>
+
+    {% for task in tasks %}
+      {% if task.complete %}
+        <div class="flex items-center justify-between text-gray-500 py-4 border-b hover:bg-green-100 transition duration-300 ease-in-out cursor-move"
+          draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)" id="task-{{task.id}}">
+
+          <!-- Completed Task Title -->
+          <div class="flex items-center space-x-3 w-1/2">
+            <input type="checkbox" checked disabled class="w-5 h-5 text-green-600" />
+            <span class="line-through">{{ task.title }}</span>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center gap-5">
+            <a href="{% url 'task-update' task.id %}" class="text-blue-600 hover:text-blue-800">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M11 4h2a2 2 0 012 2v2m0 12h-2a2 2 0 01-2-2v-2m6-6h2a2 2 0 012 2v2m-2 2v2a2 2 0 01-2 2h-2m-6-6H4a2 2 0 00-2 2v2m2-6V6a2 2 0 012-2h2" />
+              </svg>
+            </a>
+            <a href="{% url 'task-delete' task.id %}" class="text-red-600 hover:text-red-800">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </a>
+          </div>
+
+        </div>
+      {% endif %}
+    {% empty %}
+      <div class="text-center text-gray-500 py-8">No completed tasks.</div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<!-- Drag and Drop Script -->
+<script>
+  function allowDrop(event) {
+    event.preventDefault();
+  }
+
+  function drag(event) {
+    event.dataTransfer.setData("text", event.target.id);
+  }
+
+  function drop(event) {
+    event.preventDefault();
+    const draggedId = event.dataTransfer.getData("text");
+    const draggedElement = document.getElementById(draggedId);
+    const targetElement = event.target.closest(".flex");
+
+    if (targetElement && draggedElement !== targetElement) {
+      const rows = Array.from(targetElement.parentNode.children).filter(child => child.classList.contains('flex'));
+      const draggedIndex = rows.indexOf(draggedElement);
+      const targetIndex = rows.indexOf(targetElement);
+
+      if (draggedIndex < targetIndex) {
+        targetElement.parentNode.insertBefore(draggedElement, targetElement.nextSibling);
+      } else {
+        targetElement.parentNode.insertBefore(draggedElement, targetElement);
+      }
+    }
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    {% comment %} <section class="container card rounded-xl mx-auto scroll-smooth py-10 bg-best">
+      
+      <h1 class="text-center text-secondary font-mono font-bold text-4xl">About Us</h1>
+      
+      <div class= " mx-auto max-w-[1280px] grid grid-cols-1 md:grid-cols-[40%_auto] gap-20">
+        
+        <div class=" rounded-2xl shadow-2xl text-center  ring-1 ring-green-50">
+          <img src="{% static 'images/p (3).jpg' %}" class="    rounded-xl shadow-2xl w-full h-96 object-cover " />
+          <h3>Welcome to the Number One Developer's world.</h3>
+        </div>
+        
+        <div class=" leading-6 bg-be card font-robo rounded-2xl shadow-lg text-center ring-1 ring-green-50">
+          <h3 class="text-2xl font-bold mt-4 ">Welcome to the Number One Developer's world.</h3>
+          <p class="p-5 text-justify">Lorem ipsum dolor sit amet consectetur adipisicing elit. Ut eligendi expedita iste a, enim, tenetur molestias nihil quasi fugiat architecto facere nisi doloremque, perspiciatis dicta placeat unde assumenda itaque! Quas.Lorem ipsum dolor sit amet consectetur adipisicing elit. Ut eligendi expedita iste a, enim, tenetur molestias nihil quasi fugiat architecto facere nisi doloremque, perspiciatis dicta placeat unde assumenda itaque! Quas.Lorem ipsum dolor sit amet consectetur adipisicing elit. Ut eligendi expedita iste a, enim, tenetur molestias nihil quasi fugiat architecto facere nisi doloremque, perspiciatis dicta placeat unde assumenda itaque! Quas.Lorem ipsum dolor sit amet consectetur adipisicing elit. Ut eligendi expedita iste a, enim, tenetur molestias nihil quasi fugiat architecto facere nisi doloremque, perspiciatis dicta placeat unde assumenda itaque! Quas.</p>
+        </div>
+        
+      </div>
+    </section>
+
+    <section class="container mx-auto scroll-smooth">
+      <div class="text-center  my-20 bg">
+        <div class="grid grid-cols-1 md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-10 card w-full bg-best  rounded-2xl shadow-lg p-5 text-center ring-1 ring-green-50"> 
+          
+          <img src="{% static 'images/p (20).jpg' %}" class=" duration-700  hover:shadow-2xl  hover:scale-110 rotate-5  rounded-xl shadow-2xl w-full h-100 object-cover " />
+          <img src="{% static 'images/p (1).jpg' %}" class=" duration-700  hover:shadow-2xl  hover:scale-110 -rotate-5  rounded-xl shadow-2xl w-full h-100 object-cover" />
+          <img src="{% static 'images/p (2).jpg' %}" class=" duration-700  hover:shadow-2xl  hover:scale-110 rotate-5  rounded-xl shadow-2xl w-full h-100 object-cover" />
+          <img src="{% static 'images/p (3).jpg' %}" class=" duration-700  hover:shadow-2xl  hover:scale-110 -rotate-5  rounded-xl shadow-2xl w-full h-100 object-cover" />
+          <img src="{% static 'images/p (11).jpg' %}" class=" duration-700  hover:shadow-2xl  hover:scale-110 rotate-5  rounded-xl shadow-2xl w-full h-100 object-cover " />
+          <img src="{% static 'images/p (25).jpg' %}" class=" duration-700  hover:shadow-2xl  hover:scale-110 -rotate-5  rounded-xl shadow-2xl w-full h-100 object-cover" />
+          <img src="{% static 'images/p (16).jpg' %}" class=" duration-700  hover:shadow-2xl  hover:scale-110 rotate-5  rounded-xl shadow-2xl w-full h-100 object-cover  " />
+          <img src="{% static 'images/p (7).jpg' %}" class=" duration-700  hover:shadow-2xl  hover:scale-110  -rotate-5 rounded-xl shadow-2xl w-full h-100 object-cover " />
+          <img src="{% static 'images/p (8).jpg' %}" class=" duration-700  hover:shadow-2xl ring-1 ring-amber-50 hover:scale-110 rotate-5  rounded-xl shadow-2xl w-full h-100 object-fill object-center " />
+          <img src="{% static 'images/p (28).jpg' %}" class=" duration-700  hover:shadow-2xl ring-1 ring-amber-50 hover:scale-110 -rotate-5 rounded-xl shadow-2xl w-full h-100 object-fill object-center" />
+          <img src="{% static 'images/p (24).jpg' %}" class=" duration-700  hover:shadow-2xl ring-1 ring-amber-50 hover:scale-110 rotate-5  rounded-xl shadow-2xl w-full h-100 object-fill object-center " />
+          <img src="{% static 'images/p (26).jpg' %}" class=" duration-700  hover:shadow-2xl ring-1 ring-amber-50 hover:scale-110 -rotate-5  rounded-xl shadow-2xl w-full h-100 object-fill object-center " />
+          
+        </div>
+        
+        
+      </div>
+    </section> {% endcomment %}
+
+    
+    
+    
+  </div>
+
+{% endblock %}.
