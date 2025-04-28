@@ -6,7 +6,7 @@
 
 <div class="bg-white shadow-md rounded-lg p-6 mb-6">
   
-<h1 class="text-center text-violet-400  font-lobster text-3xl" > Welcome to My Todo App!</h1>
+<h1 class="text-center text-gree-400  font-lobster text-3xl" > Welcome to My Todo App!</h1>
 
 <div class="text-right">
 
@@ -125,7 +125,22 @@
       <div class="text-center text-gray-500 py-8">No completed tasks.</div>
     {% endfor %}
   </div>
+{% for task in tasks %}
 
+{% if task.completed != False %}
+
+<div class="flex items-center space-x-3 w-1/2">
+  <input type="checkbox" checked disabled class="w-5 h-5 text-green-600" />
+  <span class="line-through">{{ task.title }}</span>
+</div>
+{% else %}
+
+{% endif %}
+
+
+
+
+{% endfor %}
 </div>
 
 <!-- Drag and Drop Script -->
